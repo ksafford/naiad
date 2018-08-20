@@ -1,15 +1,19 @@
 package tech.austininnovation.naiad.core.graph
 
 import org.scalatest._
-
 import tech.austininnovation.naiad.core.graph.EdgeValueImplicits._
+import tech.austininnovation.naiad.core.graph.NodeValueImplicits._
 
 class TestInMemoryGraph extends FlatSpec with Matchers {
 
-  val node1 = Node.create(Map("Name" -> "A new Node"))
-  val node2 = Node.create(Map("Name" -> "And even newer node"))
-  val eProp1 = EdgeProperties(List(EdgeProperty("Relationship", "Is older than")))
-  val eProp2 = EdgeProperties(List(EdgeProperty("Relationship", "Is connected to")))
+  val nProp1 = List(NodeProperty("Name", "A new Node"))
+  val node1 = Node.create(nProp1)
+
+  val nProp2 = List(NodeProperty("Name", "An even newer node"))
+  val node2 = Node.create(nProp2)
+
+  val eProp1 = List(EdgeProperty("Relationship", "Is older than"))
+  val eProp2 = List(EdgeProperty("Relationship", "Is connected to"))
   val edge1 = Edge.create(node1, -->, node2, eProp1)
   val edge2 = Edge.create(node1, ---, node1, eProp2)
 
