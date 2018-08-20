@@ -2,8 +2,12 @@ name := "naiad"
 version := "1.0"
 scalaVersion := "2.12.6"
 
+resolvers ++= Seq(
+ Resolver.sonatypeRepo("releases")
+//  Resolver.sonatypeRepo("snapshots")
+)
+
 libraryDependencies ++= Seq(
-  "com.github.mpilquist" % "simulacrum_2.11" % "0.12.0",
-  "org.scalaz" %% "scalaz-core" % "7.2.26",
+  "com.chuusai" %% "shapeless" % "2.3.3",
   "org.scalatest" %% "scalatest" % "3.0.5" % Test
 )

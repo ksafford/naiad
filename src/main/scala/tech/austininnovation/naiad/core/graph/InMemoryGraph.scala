@@ -2,21 +2,17 @@ package tech.austininnovation.naiad.core.graph
 
 import java.util.UUID
 
-import tech.austininnovation.naiad.core.graph.Edges.{ DirectedEdge, UndirectedEdge }
-
 /**
  * Graph structure consisting of Nodes (vertecies) and Edges
  * Edges can be directed or undirected. By convention a directed edge goes from left to right.
  *
  * @param nodes: Optional Set of Nodes in the Graph
- * @param uEdges: Optianl Set of Undirected Edges in the Graph
- * @param dEdges: Optional Set of Directed Edges in the Graph
+ * @param edges: Optianl Set of Undirected Edges in the Graph
  */
 
 case class InMemoryGraph(
   nodes: Option[Set[Node]],
-  uEdges: Option[Set[UndirectedEdge]],
-  dEdges: Option[Set[DirectedEdge]]) {
+  edges: Option[Set[Edge]]) {
 
   def getParentNodes(node: Node): Option[Set[Node]] = {
     None
@@ -55,38 +51,19 @@ case class InMemoryGraph(
       })
   }
 
-  def addDirectedEdge(edge: DirectedEdge): InMemoryGraph = {
-    val newEdgeSet = this.dEdges match {
+  def addEdge(edge: Edge): InMemoryGraph = {
+    val newEdgeSet = this.edges match {
       case None => Set(edge)
       case Some(es) => es + edge
     }
-    this.copy(dEdges = Some(newEdgeSet))
+    this.copy(edges = Some(newEdgeSet))
   }
-
-  // private val addDEdge(_) = addDirectedEdge(_)
-
-  def addUndirectedEdge(edge: UndirectedEdge): InMemoryGraph = {
-    val newEdgeSet = this.uEdges match {
-      case None => Set(edge)
-      case Some(es) => es + edge
-    }
-    this.copy(uEdges = Some(newEdgeSet))
-  }
-
-  // private val addUEdge(_) = addUndirectedEdge(_)
 
   def getNodeById(uuid: UUID): Option[Node] = nodes.flatMap(s => s.find(_.id == uuid))
 
-  private def getDEdgeById(uuid: UUID): Option[DirectedEdge] = {
-    dEdges.flatMap(s => s.find(_.id == uuid))
+  def getEdgeById(uuid: UUID): Option[Edge] = {
+    edges.flatMap(s => s.find(_.id == uuid))
   }
 
-  private def getUEdgeById(uuid: UUID): Option[UndirectedEdge] = {
-    uEdges.flatMap(s => s.find(_.id == uuid))
-  }
-
-  def getEdgeById(uuid: UUID): Option[Product] = {
-    this.getUEdgeById(uuid) orElse this.getDEdgeById(uuid)
-  }
 }
 
