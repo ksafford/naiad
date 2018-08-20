@@ -1,0 +1,11 @@
+Configuration needed to build the project (Docker will obviate the need for these steps)
+
+Add 
+
+resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"
+
+to ~/.sbt/1.0/global.sbt
+
+According to this SO answer: https://stackoverflow.com/questions/47456328/unresolved-dependency-com-artima-supersafesupersafe-2-12-41-1-3-not-found
+
+
