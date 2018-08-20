@@ -1,7 +1,8 @@
 package tech.austininnovation.naiad.core.graph
 
 import org.scalatest._
-import tech.austininnovation.naiad.core.graph.EdgeValues.{ EDouble, EString, EdgeValue }
+
+import tech.austininnovation.naiad.core.graph.EdgeValueImplicits._
 
 class TestInMemoryGraph extends FlatSpec with Matchers {
 
