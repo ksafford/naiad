@@ -2,48 +2,13 @@ package tech.austininnovation.naiad.core.graph
 
 import java.util.UUID
 
-/**
- * Graph structure consisting of Nodes (vertecies) and Edges
- * Edges can be directed or undirected. By convention a directed edge goes from left to right.
- *
- * @param nodes: Optional Set of Nodes in the Graph
- * @param edges: Optianl Set of Undirected Edges in the Graph
- */
+import cats.Monad
 
-case class InMemoryGraph(
+case class InMemoryGraph[F[_]: Monad] (
   nodes: Option[Set[Node]],
-  edges: Option[Set[Edge]]) {
+  edges: Option[Set[Edge]]) extends GraphAlg[F] {
 
-  def getParentNodes(node: Node): Option[Set[Node]] = {
-    None
-  }
-
-  def getSiblingNodes(node: Node): Option[Set[Node]] = {
-    None
-  }
-
-  def getChildNodes(node: Node): Option[Set[Node]] = {
-    None
-  }
-
-  def getConnectedNodes(node: Node): Option[Set[Node]] = {
-    None
-  }
-
-  def getRootNodes(): Option[Set[Node]] = {
-    None
-  }
-
-  def getLeafNodes(): Option[Set[Node]] = {
-    None
-  }
-
-  /**
-   * @param node: A Node to add to the graph
-   * @return: A copy (shallow, deep?) of the graph with this node added
-   */
-
-  def addNode(node: Node): InMemoryGraph = {
+  def addNode(node: Node): InMemoryGraph[F] = {
     this.copy(
       nodes = nodes match {
         case Some(ns) => Some(ns + node)
@@ -51,7 +16,7 @@ case class InMemoryGraph(
       })
   }
 
-  def addEdge(edge: Edge): InMemoryGraph = {
+  def addEdge(edge: Edge): InMemoryGraph[F] = {
     val newEdgeSet = this.edges match {
       case None => Set(edge)
       case Some(es) => es + edge
@@ -59,11 +24,56 @@ case class InMemoryGraph(
     this.copy(edges = Some(newEdgeSet))
   }
 
-  def getNodeById(uuid: UUID): Option[Node] = nodes.flatMap(s => s.find(_.id == uuid))
-
-  def getEdgeById(uuid: UUID): Option[Edge] = {
-    edges.flatMap(s => s.find(_.id == uuid))
+  def getNodeById(uuid: UUID): F[Option[Node]] = {
+    implicitly[Monad[F]].pure(nodes.flatMap(s => s.find(_.id == uuid)))
   }
+
+  def getEdgeById(uuid: UUID): F[Option[Edge]] = {
+    implicitly[Monad[F]].pure(edges.flatMap(s => s.find(_.id == uuid)))
+  }
+
+  def getNodeEdges(node: Node): F[Option[Set[Edge]]] = for {
+    oSetOfEdges: Option[Set[Edge]] <- edges
+    setOfEdges: Set[Edge] <- oSetOfEdges
+    nodeEdges: Set[Edge] =  setOfEdges.filter(e => e.left == node | e.right == node)
+  } yield implicitly[Monad[F]].pure(nodeEdges)
+
+  def getOutEdges(node: Node): F[Option[Set[Edge]]] = {
+    for {
+      fe <- getNodeEdges(node)
+      oSetOfEdges: Option[Set[Edge]] <- fe
+      setOfEdges: Set[Edge] <- oSetOfEdges
+      outEdges: Set[Edge] = setOfEdges.filter(_.direction == -->)
+    } yield implicitly[Monad[F]].pure(outEdges)
+  }
+
+  def getInEdges(node: Node): F[Option[Set[Edge]]] = {
+    for {
+      fe <- getNodeEdges(node)
+      oSetOfEdges: Option[Set[Edge]] <- fe
+      setOfEdges: Set[Edge] <- oSetOfEdges
+      outEdges: Set[Edge] = setOfEdges.filter(_.direction == <--)
+    } yield implicitly[Monad[F]].pure(outEdges)
+  }
+
+  def getParentNodes(node: Node): F[Option[Set[Node]]] = {
+    for {
+      oSetOfEdges: Option[Set[Edge]] <- getNodeEdges(node)
+      setOfEdges: Set[Edge] <- oSetOfEdges
+      toParents: Set[Edge] = setOfEdges.filter(_.direction == <--)
+      parents = toParents.map(_.left)
+    } implicitly[Monad[F]].pure(parents)
+  }
+
+  def getChildNodes(node: Node): F[Option[Set[Node]]] = ???
+
+  def getSiblingNodes(node: Node): F[Option[Set[Node]]] = ???
+
+  def getAdjacentNodes(node: Node): F[Option[Set[Node]]] = ???
+
+  def getRootNodes(): F[Option[Set[Node]]] = ???
+
+  override def getLeafNodes(): F[Option[Set[Node]]] = ???
 
 }
 
