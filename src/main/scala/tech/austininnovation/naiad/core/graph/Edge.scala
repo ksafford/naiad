@@ -9,6 +9,7 @@ case object --> extends EdgeDirection
 
 case class Edge(
   id: UUID,
+  label: String,
   left: Node,
   direction: EdgeDirection,
   right: Node,
@@ -25,9 +26,10 @@ case class Edge(
 }
 
 object Edge {
-  def create(left: Node, direction: EdgeDirection, right: Node, edgeProperties: EdgeProperties): Edge =
+  def create(label: String, left: Node, direction: EdgeDirection, right: Node, edgeProperties: EdgeProperties): Edge =
     Edge(
       id = UUID.randomUUID(),
+      label,
       left = left,
       direction = direction,
       right = right,
