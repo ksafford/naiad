@@ -7,8 +7,8 @@ trait GraphAlg[F[_]] {
   def nodes: Option[Set[Node]]
   def edges: Option[Set[Edge]]
 
-  def addNode(node: Node): InMemoryGraph[F]
-  def addEdge(edge: Edge): InMemoryGraph[F]
+  //def addNode(node: Node): InMemoryGraph[F]
+  //def addEdge(edge: Edge): InMemoryGraph[F]
 
   def getNodeById(uuid: UUID): F[Option[Node]]
   def getEdgeById(uuid: UUID): F[Option[Edge]]

@@ -1,6 +1,8 @@
 package tech.austininnovation.naiad.core.graph
 
 import org.scalatest._
+import cats.effect.IO
+
 import tech.austininnovation.naiad.core.graph.EdgeValueImplicits._
 import tech.austininnovation.naiad.core.graph.NodeValueImplicits._
 
@@ -17,7 +19,7 @@ class TestInMemoryGraph extends FlatSpec with Matchers {
   val edge1 = Edge.create("First Edge", node1, -->, node2, eProp1)
   val edge2 = Edge.create("Second Edge", node1, ---, node1, eProp2)
 
-  val graph = InMemoryGraph(None, None)
+  val graph = InMemoryGraph[IO](None, None)
 
   val testGraph = graph.addNode(node1)
     .addNode(node2)
@@ -33,22 +35,32 @@ class TestInMemoryGraph extends FlatSpec with Matchers {
   }
 
   it should " be able to return nodes and edges by their ids" in {
-    testGraph.getNodeById(node1.id) shouldBe Some(node1)
-    testGraph.getEdgeById(edge1.id) shouldBe Some(edge1)
-    testGraph.getNodeById(java.util.UUID.randomUUID()) shouldBe None
+    testGraph.getNodeById(node1.id) shouldBe IO.pure(Some(node1))
+    testGraph.getEdgeById(edge1.id) shouldBe IO.pure(Some(edge1))
+    testGraph.getNodeById(java.util.UUID.randomUUID()) shouldBe IO.pure(None)
+  }
+
+  it should "be able to get edges connected to a node" in {
+    println(testGraph.getOutEdges(node1))
+    testGraph.getOutEdges(node1).unsafeRunSync() shouldBe Some(Set(edge1))
+    testGraph.getInEdges(node2).unsafeRunSync() shouldBe Some(Set(edge1))
+    testGraph.getNodeEdges(node1).unsafeRunSync() shouldBe Some(Set(edge1, edge2))
+  }
+
+  it should " be able to find all children and siblings of a given node" in {
+    testGraph.getParentNodes(node2).unsafeRunSync() shouldBe Some(Set(node1))
+    testGraph.getParentNodes(node1).unsafeRunSync() shouldBe None
+
+    testGraph.getChildNodes(node1).unsafeRunSync() shouldBe Some(Set(node2))
+    testGraph.getSiblingNodes(node1).unsafeRunSync() shouldBe Some(Set(node1))
+
+    //    testGraph.getAdjacentNodes(node1).unsafeRunSync() shouldBe Some(Set(node1, node2))
+
   }
 
   it should " be able to find root and leaf nodes" in {
     testGraph.getLeafNodes() shouldBe Some(Set(node2))
     testGraph.getRootNodes() shouldBe None
-  }
-
-  it should " be able to find all children and siblings of a given node" in {
-    testGraph.getConnectedNodes(node1) shouldBe Some(Set(node1, node2))
-    testGraph.getChildNodes(node1) shouldBe Some(Set(node2))
-    testGraph.getSiblingNodes(node1) shouldBe Some(Set(node1))
-    testGraph.getParentNodes(node1) shouldBe None
-    testGraph.getParentNodes(node2) shouldBe Some(Set(node1))
   }
 
   /*
