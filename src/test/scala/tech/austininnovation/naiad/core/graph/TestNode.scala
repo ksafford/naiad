@@ -5,8 +5,7 @@ import org.scalatest._
 import tech.austininnovation.naiad.core.graph.EdgeValueImplicits._
 import tech.austininnovation.naiad.core.graph.NodeValueImplicits._
 
-class TestEdge extends FlatSpec with Matchers {
-
+class TestNode extends FlatSpec with Matchers {
   val nProp1 = Map("Name" -> "A new Node")
   val node1 = Node.create("FirstNode", nProp1)
 
@@ -19,13 +18,8 @@ class TestEdge extends FlatSpec with Matchers {
   val edge1 = Edge.create("First Edge", node1, -->, node2, eProp1)
   val edge2 = Edge.create("Second Edge", node1, :-:, node1, eProp2)
 
-  "An edge" should "have properties" in {
-    edge1.edgeProperties shouldBe eProp1
+  "A node " should "create edges" in {
+    (node1 ---- node2)("Infix Edge", eProp1).left shouldBe node1
+    (node1 ---- node2)("Infix Edge", eProp1).right shouldBe node2
   }
-
-  it should "be able to find properties by name" in {
-    val props = edge1.edgeProperties
-    props.getOrElse("Relationship", None) shouldBe eProp1.getOrElse("Relationship", None)
-  }
-
 }

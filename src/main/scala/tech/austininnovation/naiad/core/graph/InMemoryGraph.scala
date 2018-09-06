@@ -3,98 +3,56 @@ package tech.austininnovation.naiad.core.graph
 import java.util.UUID
 
 import cats.Monad
+import cats.arrow.FunctionK
+import cats.{ Id, ~> }
+import scala.collection.mutable
 import cats.implicits._
 
-case class InMemoryGraph[F[_]: Monad](
-  nodes: Option[Set[Node]],
-  edges: Option[Set[Edge]]) extends GraphAlg[F] {
-
-  def addNode(node: Node): InMemoryGraph[F] = {
-    this.copy(
-      nodes = nodes match {
-        case Some(ns) => Some(ns + node)
-        case None => Some(Set(node))
-      })
-  }
-
-  def addEdge(edge: Edge): InMemoryGraph[F] = {
-    val newEdgeSet = this.edges match {
-      case None => Set(edge)
-      case Some(es) => es + edge
-    }
-    this.copy(edges = Some(newEdgeSet))
-  }
+case class InMemoryGraph[F[_]: Monad] private (
+  nodes: Set[Node],
+  edges: Set[Edge]) extends GraphAlg[F] {
 
   def getNodeById(uuid: UUID): F[Option[Node]] = {
-    Monad[F].pure(nodes.flatMap(s => s.find(_.id == uuid)))
+    Monad[F].pure(nodes.find(_.id == uuid))
   }
 
   def getEdgeById(uuid: UUID): F[Option[Edge]] = {
-    Monad[F].pure(edges.flatMap(s => s.find(_.id == uuid)))
+    Monad[F].pure(edges.find(_.id == uuid))
   }
 
-  def getNodeEdges(node: Node): F[Option[Set[Edge]]] = {
-    val nes = for {
-      setOfEdges: Set[Edge] <- edges
-      nodeEdges: Set[Edge] = setOfEdges.filter(e => e.left == node | e.right == node)
-    } yield nodeEdges
-
-    Monad[F].pure(nes)
+  def getNodeEdges(node: Node): F[Set[Edge]] = {
+    Monad[F].pure(edges.filter(e => e.left == node | e.right == node))
   }
 
-  def getOutEdges(node: Node): F[Option[Set[Edge]]] = {
+  def getOutEdges(node: Node): F[Set[Edge]] = {
     val nodeEdges = getNodeEdges(node)
 
     nodeEdges.map(
-      optionSetEdges => optionSetEdges.map(
-        setEdges => setEdges.filter(
-          e => (
-            (e.direction == <-- & e.right == node) |
-            (e.direction == --> & e.left == node)))))
+      setEdges => setEdges.filter(
+        e => (
+          (e.direction == <-> & e.right == node) |
+          (e.direction == --> & e.left == node))))
   }
 
-  def getInEdges(node: Node): F[Option[Set[Edge]]] = {
+  def getInEdges(node: Node): F[Set[Edge]] = {
     val nodeEdges = getNodeEdges(node)
 
     nodeEdges.map(
-      optionSetEdges => optionSetEdges.map(
-        setEdges => setEdges.filter(
-          e => (
-            (e.direction == <-- & e.left == node) |
-            (e.direction == --> & e.right == node)))))
+      setEdges => setEdges.filter(
+        e => (
+          (e.direction == <-> & e.left == node) |
+          (e.direction == --> & e.right == node))))
   }
 
-  def getParentNodes(node: Node): F[Option[Set[Node]]] = {
-    val inEdges = getInEdges(node)
-    inEdges.map(
-      optionSetEdges => optionSetEdges.map(
-        setEdges => setEdges.map(_.left)))
+}
+
+object InMemoryGraph {
+  case class Builder[F[_]: Monad]() {
+    var nodes: Set[Node] = Set.empty
+    var edges: Set[Edge] = Set.empty
+    def addNode(node: Node) = { nodes += node; this }
+    def addEdge(edge: Edge) = { edges += edge; this }
+    def build(): InMemoryGraph[F] = InMemoryGraph[F](nodes, edges)
   }
-
-  def getChildNodes(node: Node): F[Option[Set[Node]]] = {
-    val outEdges = getOutEdges(node)
-    outEdges.map(
-      optionSetEdges => optionSetEdges.map(
-        setEdges => setEdges.map(_.right)))
-  }
-
-  def getSiblingNodes(node: Node): F[Option[Set[Node]]] = {
-    val nodeEdges = getNodeEdges(node)
-    val sibNodes = nodeEdges.map(
-      optionSetEdges => optionSetEdges.map(
-        setEdges => setEdges.filter(_.direction == ---).flatMap(
-          edge => Set(edge.left, edge.right))))
-
-    // At this point, uEdges also contains the original node so filter it
-    sibNodes.map(optionSetNodes => optionSetNodes.map(
-      setNodes => setNodes - node))
-  }
-
-  def getAdjacentNodes(node: Node): F[Option[Set[Node]]] = ???
-
-  def getRootNodes(): F[Option[Set[Node]]] = ???
-
-  override def getLeafNodes(): F[Option[Set[Node]]] = ???
-
 }
 
