@@ -2,42 +2,27 @@ package tech.austininnovation.naiad.core.graph
 
 import java.util.UUID
 
-import simulacrum._
+sealed trait EdgeDirection
+case object :-: extends EdgeDirection
+case object --> extends EdgeDirection
+case object <-> extends EdgeDirection
 
-object Edges {
+case class Edge(
+  id: UUID,
+  label: String,
+  left: Node,
+  direction: EdgeDirection,
+  right: Node,
+  edgeProperties: Map[String, Any]) {
+}
 
-  //@typeclass
-  sealed trait Edge[T] {
-    def create(left: Node, right: Node, edgeProperties: Map[String, Any]): T
-  }
-
-  case class DirectedEdge(
-    id: UUID,
-    left: Node,
-    right: Node,
-    edgeProperties: Map[String, Any])
-
-  object DirectedEdge extends Edge[DirectedEdge] {
-    def create(left: Node, right: Node, edgeProperties: Map[String, Any]): DirectedEdge =
-      DirectedEdge(
-        id = UUID.randomUUID(),
-        left = left,
-        right = right,
-        edgeProperties = edgeProperties)
-  }
-
-  case class UndirectedEdge(
-    id: UUID,
-    left: Node,
-    right: Node,
-    edgeProperties: Map[String, Any])
-
-  object UndirectedEdge extends Edge[UndirectedEdge] {
-    def create(left: Node, right: Node, edgeProperties: Map[String, Any]): UndirectedEdge =
-      UndirectedEdge(
-        id = UUID.randomUUID(),
-        left = left,
-        right = right,
-        edgeProperties = edgeProperties)
-  }
+object Edge {
+  def create(label: String, left: Node, direction: EdgeDirection, right: Node, edgeProperties: Map[String, Any]): Edge =
+    Edge(
+      id = UUID.randomUUID(),
+      label,
+      left = left,
+      direction = direction,
+      right = right,
+      edgeProperties = edgeProperties)
 }

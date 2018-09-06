@@ -3,3 +3,6 @@
 *.idea
 .sbtopts
 target
+/.ensime
+/.ensime_cache/
+project/.ensime
