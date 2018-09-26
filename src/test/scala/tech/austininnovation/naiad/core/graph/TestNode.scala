@@ -2,9 +2,6 @@ package tech.austininnovation.naiad.core.graph
 
 import org.scalatest._
 
-import tech.austininnovation.naiad.core.graph.EdgeValueImplicits._
-import tech.austininnovation.naiad.core.graph.NodeValueImplicits._
-
 class TestNode extends FlatSpec with Matchers {
   val nProp1 = Map("Name" -> "A new Node")
   val node1 = Node.create("FirstNode", nProp1)
@@ -21,5 +18,15 @@ class TestNode extends FlatSpec with Matchers {
   "A node " should "create edges" in {
     (node1 ---- node2)("Infix Edge", eProp1).left shouldBe node1
     (node1 ---- node2)("Infix Edge", eProp1).right shouldBe node2
+    (node1 ---- node2)("Infix Edge", eProp1).direction shouldBe :-:
+
+    (node1 ---> node2)("Infix Edge", eProp1).left shouldBe node1
+    (node1 ---> node2)("Infix Edge", eProp1).right shouldBe node2
+    (node1 ---> node2)("Infix Edge", eProp1).direction shouldBe -->
+
+    (node1 <--> node2)("Infix Edge", eProp1).left shouldBe node1
+    (node1 <--> node2)("Infix Edge", eProp1).right shouldBe node2
+    (node1 <--> node2)("Infix Edge", eProp1).direction shouldBe <->
+
   }
 }

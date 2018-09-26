@@ -1,9 +1,10 @@
-package tech.austininnovation.naiad.core.graph
+package tech.austininnovation.naiad.core
+package graph
 
 import org.scalatest._
 
-import tech.austininnovation.naiad.core.graph.EdgeValueImplicits._
-import tech.austininnovation.naiad.core.graph.NodeValueImplicits._
+//import tech.austininnovation.naiad.core.graph.EdgeValueImplicits._
+//import tech.austininnovation.naiad.core.graph.NodeValueImplicits._
 
 class TestEdge extends FlatSpec with Matchers {
 

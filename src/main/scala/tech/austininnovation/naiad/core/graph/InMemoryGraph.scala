@@ -3,9 +3,6 @@ package tech.austininnovation.naiad.core.graph
 import java.util.UUID
 
 import cats.Monad
-import cats.arrow.FunctionK
-import cats.{ Id, ~> }
-import scala.collection.mutable
 import cats.implicits._
 
 case class InMemoryGraph[F[_]: Monad] private (
@@ -51,8 +48,11 @@ object InMemoryGraph {
     var nodes: Set[Node] = Set.empty
     var edges: Set[Edge] = Set.empty
     def addNode(node: Node) = { nodes += node; this }
+    def addNodes(ns: Set[Node]) = { nodes ++= ns; this }
     def addEdge(edge: Edge) = { edges += edge; this }
+    def addEdges(es: Set[Edge]) = { edges ++= es; this }
     def build(): InMemoryGraph[F] = InMemoryGraph[F](nodes, edges)
   }
+
 }
 

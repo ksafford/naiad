@@ -1,43 +1,41 @@
 package tech.austininnovation.naiad.core.graph
 
 import org.scalatest._
-import cats.effect.IO
 import cats.Id
-import cats.syntax.functor
-import cats.implicits._
-
-import tech.austininnovation.naiad.core.graph.EdgeValueImplicits._
-import tech.austininnovation.naiad.core.graph.NodeValueImplicits._
 
 class TestInMemoryGraph extends FlatSpec with Matchers {
 
   val nProp1 = Map("Name" -> "A new Node")
-  val node1 = Node.create("First Node", nProp1)
+  val node1 = Node.create("node1", nProp1)
 
   val nProp2 = Map("Name" -> "An even newer node")
-  val node2 = Node.create("Second Node", nProp2)
+  val node2 = Node.create("node2", nProp2)
 
   val eProp1 = Map("Relationship" -> "Is older than")
   val eProp2 = Map("Relationship" -> "Is connected to")
   val eProp3 = Map("Relationship" -> "Is connected to")
-  val edge1 = Edge.create("First Edge", node1, -->, node2, eProp1)
-  val edge2 = Edge.create("Second Edge", node1, :-:, node1, eProp2)
-  val edge3 = Edge.create("Self Edge", node2, <->, node2, eProp3)
+  val eProp4 = Map("Relationship" -> "Is connected to")
+  val edge1 = Edge.create("edge1", node1, -->, node2, eProp1)
+  val edge2 = Edge.create("edge2", node1, :-:, node1, eProp2)
+  val edge3 = Edge.create("edge3", node2, <->, node2, eProp3)
+  val edge4 = Edge.create("edge4", node1, :-:, node2, eProp4)
 
   val testGraph = InMemoryGraph.Builder[Id]
     .addNode(node1)
     .addNode(node2)
-    .addEdge(edge1)
+    .addNode(node2)
+    .addEdges(Set(edge1, edge2))
     .addEdge(edge2)
     .addEdge(edge3)
+    .addEdge(edge4)
     .build()
 
-  "A graph " should "be able to have nodes added" in {
+  "An in-memory graph " should "correctly add nodes, without duplicates" in {
     testGraph.nodes shouldBe Set(node1, node2)
   }
 
-  it should " be able to have edged added" in {
-    testGraph.edges shouldBe Set(edge1, edge2, edge3)
+  it should " correctly add edges, without duplicaes" in {
+    testGraph.edges shouldBe Set(edge1, edge2, edge3, edge4)
   }
 
   it should " be able to return nodes and edges by their ids" in {
@@ -49,8 +47,39 @@ class TestInMemoryGraph extends FlatSpec with Matchers {
   it should "be able to get edges connected to a node" in {
     testGraph.getOutEdges(node1) shouldBe Set(edge1)
     testGraph.getInEdges(node2) shouldBe Set(edge1, edge3)
-    testGraph.getNodeEdges(node1) shouldBe Set(edge1, edge2)
-    testGraph.getNodeEdges(node2) shouldBe Set(edge1, edge3)
+    testGraph.getNodeEdges(node1) shouldBe Set(edge1, edge2, edge4)
+    testGraph.getNodeEdges(node2) shouldBe Set(edge1, edge3, edge4)
+
+  }
+
+  it should "corecctly identify the relationship between nodes" in {
+    testGraph.isParent(node1, node2) shouldBe true
+    testGraph.isChild(node2, node1) shouldBe true
+    testGraph.isSibling(node1, node2) shouldBe false
+    testGraph.isAdjacent(node1, node2) shouldBe true
+
+    testGraph.isParent(node2, node1) shouldBe false
+    testGraph.isChild(node1, node2) shouldBe false
+    testGraph.isSibling(node2, node1) shouldBe false
+    testGraph.isAdjacent(node2, node1) shouldBe true
+
+    testGraph.isParent(node1, node1) shouldBe false
+    testGraph.isParent(node2, node2) shouldBe true
+    testGraph.isChild(node2, node2) shouldBe true
+    testGraph.isSibling(node2, node2) shouldBe true
+    testGraph.isAdjacent(node2, node2) shouldBe true
+
+  }
+
+  it should "be able to get edges between two nodes" in {
+    testGraph.getEdgesBetween(node1, node2).size shouldBe 2
+    testGraph.getEdgesBetween(node1, node1).size shouldBe 1
+    testGraph.getEdgesBetween(node2, node2).size shouldBe 1
+
+    testGraph.getEdgesBetween(node1, node2) shouldBe Set(edge1, edge4)
+    testGraph.getEdgesBetween(node2, node1) shouldBe Set(edge1, edge4)
+    testGraph.getEdgesBetween(node1, node1) shouldBe Set(edge2)
+    testGraph.getEdgesBetween(node2, node2) shouldBe Set(edge3)
 
   }
 
@@ -67,7 +96,11 @@ class TestInMemoryGraph extends FlatSpec with Matchers {
 
   it should "be able to find the sibling nodes of a given node" in {
     testGraph.getSiblingNodes(node1) shouldBe Set.empty
-    //testGraph.getSiblingNodes(node2) shouldBe Set.empty
+    testGraph.getSiblingNodes(node2) shouldBe Set(node2)
+  }
+
+  it should "be able to find adjacent nodes of a given node" in {
+    testGraph.getAdjacentNodes(node1) shouldBe Set(node1, node2)
   }
 
 }
