@@ -1,4 +1,5 @@
-package tech.austininnovation.naiad.core.graph
+package tech.austininnovation.naiad.core
+package graph
 
 import java.util.UUID
 
