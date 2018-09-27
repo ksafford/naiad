@@ -84,7 +84,7 @@ class TestInMemoryGraph extends FlatSpec with Matchers {
   }
 
   it should "be able to find parent nodes of a given node" in {
-    testGraph.getParentNodes(node2) shouldBe Set(node1, node2)
+    testGraph.getParentNodes(node2).map(_.label) shouldBe Set(node1, node2).map(_.label)
     testGraph.getParentNodes(node1) shouldBe Set.empty
   }
 

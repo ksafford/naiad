@@ -1,4 +1,5 @@
-package tech.austininnovation.naiad.core.graph
+package tech.austininnovation.naiad.core
+package graph
 
 import java.util.UUID
 
@@ -25,6 +26,8 @@ trait GraphAlg[F[_]] {
    * The collections of nodes and edges in the graph. Set is appropriate because
    * nodes and edges should be unique and an empty Set is a valid value.
    */
+  // TODO: Remove these, provde them with a trait that carries their constraints
+  // e.g. with DirectedEdges ...
   def nodes: Set[Node]
   def edges: Set[Edge]
 
@@ -137,9 +140,12 @@ trait GraphAlg[F[_]] {
    * @param f implicit Functor: To allow for map operations.
    * @return F[Boolean]: Are these nodes connected by a bi-directional edge?
    */
+  //TODO: Ugly. But can't seem to use filterNot correctly.
   def isSibling(n1: Node, n2: Node)(implicit f: Functor[F]): F[Boolean] = {
     val nodeEdges = getNodeEdges(n1)
-    nodeEdges.map(es => !es.filter(e => List(e.left, e.right).contains(n2) && (e.direction == <->)).isEmpty)
+    nodeEdges.map(
+      es => es.filter(
+        e => (List(e.left, e.right).contains(n2) && (e.direction == <->))).isEmpty).map(e => !e)
   }
 
   /**
@@ -151,10 +157,13 @@ trait GraphAlg[F[_]] {
    * @return F[Set[Node]]: All nodes connected to a given node, by any edge.
    */
   def getAdjacentNodes(node: Node)(implicit im: InvariantMonoidal[F], f: Functor[F]): F[Set[Node]] = {
-    val adjacentNodes = nodes.map(n => (n, isAdjacent(n, node))).collect {
-      case (n, fb) if fb == im.point(true) => n
-    }
-    im.point(adjacentNodes)
+    val nodeEdges = getNodeEdges(node)
+    val nodes = nodeEdges.map(es => es.flatMap(e => Set(e.left, e.right)))
+    nodes.map(
+      ns => ns.map(
+        n => (n, isAdjacent(n, node))).collect {
+          case (n, fb) if fb == im.point(true) => n
+        })
   }
 
   /**
@@ -167,10 +176,12 @@ trait GraphAlg[F[_]] {
    * @return F[Set[Node]]: All child nodes of a given node.
    */
   def getChildNodes(node: Node)(implicit im: InvariantMonoidal[F], f: Functor[F]): F[Set[Node]] = {
-    val childNodes = nodes.map(n => (n, isChild(n, node))).collect {
-      case (n, fb) if fb == im.point(true) => n
-    }
-    im.point(childNodes)
+    val adjNodes = getAdjacentNodes(node)
+    adjNodes.map(
+      ns => ns.map(
+        n => (n, isChild(n, node))).collect {
+          case (n, fb) if fb == im.point(true) => n
+        })
   }
 
   /**
@@ -183,10 +194,11 @@ trait GraphAlg[F[_]] {
    * @return F[Set[Node]]: All parent nodes of a given node.
    */
   def getParentNodes(node: Node)(implicit im: InvariantMonoidal[F], f: Functor[F]): F[Set[Node]] = {
-    val parentNodes = nodes.map(n => (n, isParent(n, node))).collect {
-      case (n, fb) if fb == im.point(true) => n
-    }
-    im.point(parentNodes)
+    val adjNodes = getAdjacentNodes(node)
+    adjNodes.map(
+      ns => ns.map(n => (n, isParent(n, node))).collect {
+        case (n, fb) if fb == im.point(true) => n
+      })
   }
 
   /**
@@ -198,10 +210,11 @@ trait GraphAlg[F[_]] {
    * @return F[Set[Node]]: All sibling nodes of a given node.
    */
   def getSiblingNodes(node: Node)(implicit im: InvariantMonoidal[F], f: Functor[F]): F[Set[Node]] = {
-    val siblingNodes = nodes.map(n => (n, isSibling(n, node))).collect {
-      case (n, fb) if (fb == im.point(true)) => n
-    }
-    im.point(siblingNodes)
+    val adjNodes = getAdjacentNodes(node)
+    adjNodes.map(
+      ns => ns.map(n => (n, isSibling(n, node))).collect {
+        case (n, fb) if (fb == im.point(true)) => n
+      })
   }
 
   // Something clean and re-usable like this would be nicer. The implicit parameters make it hard.
