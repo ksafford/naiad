@@ -7,8 +7,8 @@ import cats.{ Functor, InvariantMonoidal, Monad }
 import cats.implicits._
 
 /**
- * The fundamental graph algebra. We want to limit the number of abstract methods
- * here so that writing an implementation is simple.
+ * The fundamental graph algebra. We want to limit the number of abstract
+ * methods here so that writing an implementation is simple.
  *
  * As it stands, writing a new graph implementation only requires an
  * implementation of the basic node and edge getters.
@@ -24,7 +24,7 @@ trait GraphAlg[F[_]] {
 
   /**
    * The collections of nodes and edges in the graph. Set is appropriate because
-   * nodes and edges should be unique and an empty Set is a valid value.
+    nodes and edges should be unique and an empty Set is a valid value.
    */
   // TODO: Remove these, provde them with a trait that carries their constraints
   // e.g. with DirectedEdges ...
@@ -56,8 +56,9 @@ trait GraphAlg[F[_]] {
   def getNodeEdges(node: Node): F[Set[Edge]]
 
   /**
-   * Abstract method to retrieve all edges connected to a given node that are directed away
-   * from the node. This should include both edges with direction --> and <->
+   * Abstract method to retrieve all edges connected to a given node that are
+   * directed away from the node. This should include both edges with
+   * direction --> and <->
    *
    * @param node
    * @return F[Set[Node]] Will return an empty set if there are no edges
@@ -65,8 +66,9 @@ trait GraphAlg[F[_]] {
   def getOutEdges(node: Node): F[Set[Edge]]
 
   /**
-   * Abstract method to retrieve all edges connected to a given node that are directed toward
-   * the node. This should include both edges with direction <-- and <->
+   * Abstract method to retrieve all edges connected to a given node that are
+   * directed toward the node. This should include both edges with direction <--
+   * and <->
    *
    * @param node Node:
    * @return F[Set[Node]]: Will return an empty set if there are no edges
@@ -79,7 +81,8 @@ trait GraphAlg[F[_]] {
    *
    * @param n1 Node
    * @param n2 Node: Can be the same as n1
-   * @param m implicit Monad: needed to allow the return value of getNodeEdges to be mappable and filterable.
+   * @param m implicit Monad: needed to allow the return value of getNodeEdges
+   * to be mappable and filterable.
    * @return F[Set[Edge]]: All edges with the given nodes at their endpoints.
    */
   def getEdgesBetween(n1: Node, n2: Node)(implicit m: Monad[F]): F[Set[Edge]] = {
@@ -88,13 +91,14 @@ trait GraphAlg[F[_]] {
   }
 
   /**
-   * Check if n1 is the parent of n2. Here, a parent requires and edge from n1 to n2.
-   * E.g: n1 --> n2. Undirected edges create an adjacent relationship, not parent/child.
-   * In the case n1 <-> n2 n1 is both parent and child to n2
+   * Check if n1 is the parent of n2. Here, a parent requires and edge from n1
+   * to n2. E.g: n1 --> n2. Undirected edges create an adjacent relationship,
+   * not parent/child. In the case n1 <-> n2 n1 is both parent and child to n2
    *
    * We could use a typeclass to make this infix
    *
-   * @param n1 Node: The node we are checking for parenthood: is n1 a parent of n2?
+   * @param n1 Node: The node we are checking for parenthood: is n1 a parent of
+   * n2?
    * @param n2 Node: The node we are checking against: is n2 a child of n1?
    * @param f implicit Functor: To allow for map operations.
    * @return F[Boolean]
@@ -105,9 +109,10 @@ trait GraphAlg[F[_]] {
   }
 
   /**
-   * Inverse of isParent. Check if n1 is the child of n2. Here, a child requires and edge from n2 to n1.
-   * E.g: n2 --> n1. Undirected edges create an adjacent relationship, not parent/child.
-   * In the case n1 <-> n2 n1 is both parent and child to n2
+   * Inverse of isParent. Check if n1 is the child of n2. Here, a child requires
+   * and edge from n2 to n1. E.g: n2 --> n1. Undirected edges create an adjacent
+   * relationship, not parent/child. In the case n1 <-> n2 n1 is both parent and
+   * child to n2
    *
    * We could use a typeclass to make this infix
    *
@@ -152,7 +157,8 @@ trait GraphAlg[F[_]] {
    * Get all nodes connected to the given node, via any edge.
    *
    * @param node Node
-   * @param implicit im InvariantMonoidal: Provides point, to lift a value to the return type F
+   * @param implicit im InvariantMonoidal: Provides point, to lift a value to
+   * the return type F
    * @param f implicit Functor: To allow for map operations.
    * @return F[Set[Node]]: All nodes connected to a given node, by any edge.
    */
@@ -167,11 +173,13 @@ trait GraphAlg[F[_]] {
   }
 
   /**
-   * Get all children of the given node. Children are connected by a directed edge,
-   * pointing away from the given node. This will include both --> and <-> edges.
+   * Get all children of the given node. Children are connected by a directed
+   * edge, pointing away from the given node. This will include both --> and <->
+   * edges.
    *
    * @param node Node
-   * @param implicit im InvariantMonoidal: Provides point, to lift a value to the return type F
+   * @param implicit im InvariantMonoidal: Provides point, to lift a value to
+   * the return type F
    * @param f implicit Functor: To allow for map operations.
    * @return F[Set[Node]]: All child nodes of a given node.
    */
@@ -185,11 +193,13 @@ trait GraphAlg[F[_]] {
   }
 
   /**
-   * Get all parents of the given node. Parents are connected by a directed edge,
-   * pointing toward from the given node. This will include both --> and <-> edges.
+   * Get all parents of the given node. Parents are connected by a directed
+   * edge, pointing toward from the given node. This will include both --> and
+   * <-> edges.
    *
    * @param node Node
-   * @param implicit im InvariantMonoidal: Provides point, to lift a value to the return type F
+   * @param implicit im InvariantMonoidal: Provides point, to lift a value to
+   * the return type F
    * @param f implicit Functor: To allow for map operations.
    * @return F[Set[Node]]: All parent nodes of a given node.
    */
@@ -205,7 +215,8 @@ trait GraphAlg[F[_]] {
    * Get all siblings of the given node. Siblings are connected by a bi-directional edges, <->
    *
    * @param node Node
-   * @param implicit im InvariantMonoidal: Provides point, to lift a value to the return type F
+   * @param implicit im InvariantMonoidal: Provides point, to lift a value to
+   * the return type F
    * @param f implicit Functor: To allow for map operations.
    * @return F[Set[Node]]: All sibling nodes of a given node.
    */
@@ -217,7 +228,9 @@ trait GraphAlg[F[_]] {
       })
   }
 
-  // Something clean and re-usable like this would be nicer. The implicit parameters make it hard.
+  // Something clean and re-usable like this would be nicer. The implicit
+  // parameters make it hard.
+  //
   //def getNodesConditionally(node: Node, pred: (Node, Node) => F[Boolean]): F[Set[Node]] = {
   //  val conditionalNodes = nodes.map(n => (n, pred(n, node))).collect {
   //    case (n, fb) if fb == im.point(true) => n
