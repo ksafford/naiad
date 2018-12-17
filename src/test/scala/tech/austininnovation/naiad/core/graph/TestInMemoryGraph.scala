@@ -1,4 +1,5 @@
-package tech.austininnovation.naiad.core.graph
+package tech.austininnovation.naiad.core
+package graph
 
 import org.scalatest._
 import cats.Id
@@ -20,7 +21,7 @@ class TestInMemoryGraph extends FlatSpec with Matchers {
   val edge3 = Edge.create("edge3", node2, <->, node2, eProp3)
   val edge4 = Edge.create("edge4", node1, :-:, node2, eProp4)
 
-  val testGraph = InMemoryGraph.Builder[Id]
+  val testGraph = (InMemoryGraph.Builder[Id]
     .addNode(node1)
     .addNode(node2)
     .addNode(node2)
@@ -28,14 +29,14 @@ class TestInMemoryGraph extends FlatSpec with Matchers {
     .addEdge(edge2)
     .addEdge(edge3)
     .addEdge(edge4)
-    .build()
+    .build())
 
   "An in-memory graph " should "correctly add nodes, without duplicates" in {
-    testGraph.nodes shouldBe Set(node1, node2)
+    testGraph.graph.nodes shouldBe Set(node1, node2)
   }
 
   it should " correctly add edges, without duplicaes" in {
-    testGraph.edges shouldBe Set(edge1, edge2, edge3, edge4)
+    testGraph.graph.edges shouldBe Set(edge1, edge2, edge3, edge4)
   }
 
   it should " be able to return nodes and edges by their ids" in {
