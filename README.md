@@ -13,7 +13,7 @@ https://stackoverflow.com/questions/47456328/unresolved-dependency-com-artima-su
 # Build
 
 The build is using quite a lot of additional compiler plug-ins. Most of these
-areeither for nice functional capabilities, like partial unification, or for
+are either for nice functional capabilities, like partial unification, or for
 ensuring cleaner code, like failing on warnings.
 
 These are mostly taken whole-cloth from
