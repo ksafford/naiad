@@ -1,6 +1,7 @@
 package tech.austininnovation.naiad.core
 
+import cats.Monad
+
 package object graph {
-  type EdgeProperties = List[EdgeProperty]
-  type NodeProperties = List[NodeProperty]
+  implicit def alg2Backend[F[_] <: Monad[F]](a: graph.InMemoryGraph[F]): graph.InMemorySetBackend[F] = a.graph
 }
