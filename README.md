@@ -1,4 +1,5 @@
-# Configuration needed to build the project (Docker will obviate the need for these steps)
+# Configuration needed to build the project 
+### Docker will obviate the need for these steps
 
 
 Add 
