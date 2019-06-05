@@ -31,7 +31,7 @@ class TestInMemoryGraph extends FlatSpec with Matchers {
     .addEdge(edge4)
     .build())
 
-  "An in-memory graph " should "correctly add nodes, without duplicates" in {
+  "An in-memory graph" should "correctly add nodes, without duplicates" in {
     testGraph.graph.nodes shouldBe Set(node1, node2)
   }
 
@@ -40,68 +40,70 @@ class TestInMemoryGraph extends FlatSpec with Matchers {
   }
 
   it should " be able to return nodes and edges by their ids" in {
-    testGraph.getNodeById(node1.id) shouldBe Some(node1)
-    testGraph.getEdgeById(edge1.id) shouldBe Some(edge1)
-    testGraph.getNodeById(java.util.UUID.randomUUID()) shouldBe None
+    testGraph.graph.getNodeById(node1.id) shouldBe Some(node1)
+    testGraph.graph.getEdgeById(edge1.id) shouldBe Some(edge1)
+    testGraph.graph.getNodeById(java.util.UUID.randomUUID()) shouldBe None
   }
 
   it should "be able to get edges connected to a node" in {
-    testGraph.getOutEdges(node1) shouldBe Set(edge1)
-    testGraph.getInEdges(node2) shouldBe Set(edge1, edge3)
-    testGraph.getNodeEdges(node1) shouldBe Set(edge1, edge2, edge4)
-    testGraph.getNodeEdges(node2) shouldBe Set(edge1, edge3, edge4)
+    testGraph.graph.getOutEdges(node1) shouldBe Set(edge1)
+    testGraph.graph.getInEdges(node2) shouldBe Set(edge1, edge3)
+    testGraph.graph.getNodeEdges(node1) shouldBe Set(edge1, edge2, edge4)
+    testGraph.graph.getNodeEdges(node2) shouldBe Set(edge1, edge3, edge4)
 
   }
 
-  it should "corecctly identify the relationship between nodes" in {
-    testGraph.isParent(node1, node2) shouldBe true
-    testGraph.isChild(node2, node1) shouldBe true
-    testGraph.isSibling(node1, node2) shouldBe false
-    testGraph.isAdjacent(node1, node2) shouldBe true
+  it should "corectly identify the relationship between nodes" in {
+    testGraph.graph.isParent(node1, node2) shouldBe true
+    testGraph.graph.isChild(node2, node1) shouldBe true
+    testGraph.graph.isSibling(node1, node2) shouldBe false
+    testGraph.graph.isAdjacent(node1, node2) shouldBe true
 
-    testGraph.isParent(node2, node1) shouldBe false
-    testGraph.isChild(node1, node2) shouldBe false
-    testGraph.isSibling(node2, node1) shouldBe false
-    testGraph.isAdjacent(node2, node1) shouldBe true
+    testGraph.graph.isParent(node2, node1) shouldBe false
+    testGraph.graph.isChild(node1, node2) shouldBe false
+    testGraph.graph.isSibling(node2, node1) shouldBe false
+    testGraph.graph.isAdjacent(node2, node1) shouldBe true
 
-    testGraph.isParent(node1, node1) shouldBe false
-    testGraph.isParent(node2, node2) shouldBe true
-    testGraph.isChild(node2, node2) shouldBe true
-    testGraph.isSibling(node2, node2) shouldBe true
-    testGraph.isAdjacent(node2, node2) shouldBe true
+    testGraph.graph.isParent(node1, node1) shouldBe false
+    testGraph.graph.isParent(node2, node2) shouldBe true
+    testGraph.graph.isChild(node2, node2) shouldBe true
+    testGraph.graph.isSibling(node2, node2) shouldBe true
+    testGraph.graph.isAdjacent(node2, node2) shouldBe true
 
   }
 
   it should "be able to get edges between two nodes" in {
-    testGraph.getEdgesBetween(node1, node2).size shouldBe 2
-    testGraph.getEdgesBetween(node1, node1).size shouldBe 1
-    testGraph.getEdgesBetween(node2, node2).size shouldBe 1
+    println(testGraph.graph.getEdgesBetween(node1, node2).map(_.label))
+    testGraph.graph.getEdgesBetween(node1, node2).size shouldBe 2
+    testGraph.graph.getEdgesBetween(node1, node1).size shouldBe 1
+    testGraph.graph.getEdgesBetween(node2, node2).size shouldBe 1
 
-    testGraph.getEdgesBetween(node1, node2) shouldBe Set(edge1, edge4)
-    testGraph.getEdgesBetween(node2, node1) shouldBe Set(edge1, edge4)
-    testGraph.getEdgesBetween(node1, node1) shouldBe Set(edge2)
-    testGraph.getEdgesBetween(node2, node2) shouldBe Set(edge3)
+    testGraph.graph.getEdgesBetween(node1, node2) shouldBe Set(edge1, edge4)
+    testGraph.graph.getEdgesBetween(node2, node1) shouldBe Set(edge1, edge4)
+    testGraph.graph.getEdgesBetween(node1, node1) shouldBe Set(edge2)
+    testGraph.graph.getEdgesBetween(node2, node2) shouldBe Set(edge3)
 
   }
 
   it should "be able to find parent nodes of a given node" in {
-    testGraph.getParentNodes(node2).map(_.label) shouldBe Set(node1, node2).map(_.label)
-    testGraph.getParentNodes(node1) shouldBe Set.empty
+    testGraph.graph.getParentNodes(node2).map(_.label) shouldBe Set(node1, node2).map(_.label)
+    testGraph.graph.getParentNodes(node1) shouldBe Set.empty
   }
 
   it should "be able to find the child nodes of a given node" in {
-    testGraph.getChildNodes(node1) shouldBe Set(node2)
-    testGraph.getChildNodes(node2) shouldBe Set(node2)
+    testGraph.graph.getChildNodes(node1) shouldBe Set(node2)
+    testGraph.graph.getChildNodes(node2) shouldBe Set(node2)
 
   }
 
   it should "be able to find the sibling nodes of a given node" in {
-    testGraph.getSiblingNodes(node1) shouldBe Set.empty
-    testGraph.getSiblingNodes(node2) shouldBe Set(node2)
+    testGraph.graph.getSiblingNodes(node1) shouldBe Set.empty
+    testGraph.graph.getSiblingNodes(node2) shouldBe Set(node2)
   }
 
   it should "be able to find adjacent nodes of a given node" in {
-    testGraph.getAdjacentNodes(node1) shouldBe Set(node1, node2)
+    testGraph.graph.getAdjacentNodes(node1) shouldBe Set(node1, node2)
   }
 
 }
+

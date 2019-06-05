@@ -1,6 +1,13 @@
 package tech.austininnovation.naiad.core
 package graph
 
+import scala.collection.GenTraversable
+import scala.collection.generic.GenericTraversableTemplate
+
+
+//import cats.Monad
+
+
 /**
  * The fundamental graph algebra. We want to limit the number of abstract
  * methods here so that writing an implementation is simple.
@@ -15,8 +22,8 @@ package graph
  *           This style is called 'tagless final'
  */
 
-trait GraphAlg[F[_], T[_]] {
-  def graph: GraphBackend[F, T]
+trait GraphAlg[T[A] <: GenTraversable[A] with GenericTraversableTemplate[A, T], F[T]] {
+  def graph: GraphBackend[T, F]
   //def depthFirstPropertySearch(prop: Map[String, String]): F[T[Node]] = {
   //
   //}

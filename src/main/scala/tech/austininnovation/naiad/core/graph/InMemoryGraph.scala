@@ -1,8 +1,11 @@
 package tech.austininnovation.naiad.core
 package graph
 
-case class InMemoryGraph[F[_]] private (
-  graph: InMemorySetBackend[F]) extends GraphAlg[F, Set]
+//import cats.Monad
+
+
+final case class InMemoryGraph[F[_]] private (
+  graph: InMemorySetBackend[F]) extends GraphAlg[Set, F]
 
 object InMemoryGraph {
   case class Builder[F[_]]() {
@@ -14,7 +17,7 @@ object InMemoryGraph {
     def addEdges(es: Set[Edge]) = { edges ++= es; this }
     def build(): InMemoryGraph[F] = {
       val backend = InMemorySetBackend[F](nodes, edges)
-      InMemoryGraph[F](backend)
+      InMemoryGraph(backend)
     }
   }
 

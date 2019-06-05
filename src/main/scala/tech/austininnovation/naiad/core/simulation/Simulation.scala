@@ -3,9 +3,10 @@ package simulation
 
 import tech.austininnovation.naiad.core.graph.InMemoryGraph
 
+import cats.Monad
 import com.github.nscala_time.time.Imports._
 
-case class Simulation[F[_]](
+case class Simulation[F[_] <: Monad[F]](
   graph: InMemoryGraph[F],
   simulationConfig: SimulationConfig) {
 
