@@ -36,8 +36,3 @@ and then run
 to generate a test coverage report, create the scaladoc, and get general stats
 on the project. Coverage report and scaladoc both create html files in the
 target directory. Find uncovered code and write tests.
-
-TODO 
-
-We just moved a general getEdgesBetween method to the GraphBackend trait instead of a specific implementation. Do that for everything else
-The goal is that we should only need to implement about 4 abstract methods to write a new backend.
